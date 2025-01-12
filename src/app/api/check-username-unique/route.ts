@@ -10,6 +10,7 @@ const UsernameQuerySchema = z.object({
 
 export async function GET(req: Request) {
     await dbConnect();
+    console.log(new Date().toString());
 
     try {
         const { searchParams } = new URL(req.url);
@@ -17,7 +18,6 @@ export async function GET(req: Request) {
             username: searchParams.get("username")
         }
         const result = UsernameQuerySchema.safeParse(querryParams);
-        console.log(result);
         if (!result.success) {
             const usernameError = result.error.format().username?._errors || [];
             return Response.json({
