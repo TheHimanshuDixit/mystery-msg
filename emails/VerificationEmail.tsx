@@ -31,6 +31,16 @@ export default function VerificationEmail({
               Password (OTP) to verify your email address:
             </Text>
             <Text style={styles.otp}>{otp}</Text>
+            <Text style={styles.text}>This OTP will expire in 1 hour.</Text>
+            <Text style={styles.text}>
+              Please do not share this OTP with anyone.
+            </Text>
+            <Text style={styles.text}>
+              Click the link below to verify your email address:
+            </Text>
+            <a style={styles.link} href={`http://localhost:3000/verify/${username}`}>
+              Verify Email
+            </a>
             <Text style={styles.text}>
               If you didn&apos;t request this, please ignore this email.
             </Text>
@@ -78,6 +88,16 @@ const styles = {
     fontWeight: "bold" as const,
     textAlign: "center" as const,
     color: "#2c7be5",
+    margin: "20px 0",
+  },
+  link: {
+    display: "block",
+    textAlign: "center" as const,
+    color: "#ffffff",
+    backgroundColor: "#2c7be5",
+    padding: "10px",
+    borderRadius: "4px",
+    textDecoration: "none",
     margin: "20px 0",
   },
   footer: {

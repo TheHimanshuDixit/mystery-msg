@@ -51,7 +51,7 @@ const Page = () => {
     } catch (error) {
       const response = axios.isAxiosError(error) ? error.response : null;
       toast({
-        title: "Error",
+        title: "Sign Up Error",
         description: response?.data?.message || "Error signing up",
         variant: "destructive",
       });
@@ -114,7 +114,7 @@ const Page = () => {
                         className="w-6 h-6 mr-2 animate-spin text-gray-500"
                       />
                     ) : (
-                      <p>
+                      <span>
                         {usernameMessage === "Username is unique" ? (
                           <span className="text-green-500">
                             {usernameMessage}
@@ -124,7 +124,7 @@ const Page = () => {
                             {usernameMessage}
                           </span>
                         )}
-                      </p>
+                      </span>
                     )}
                   </FormMessage>
                 </FormItem>

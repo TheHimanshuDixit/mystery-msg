@@ -17,6 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     const user = await UserModel.findOne({
                         $or: [
                             { email: credentials.identifier },
+                            { username: credentials.identifier }
                         ]
                     })
                     if (!user) throw new Error("No user found")
@@ -59,5 +60,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session: {
         strategy: "jwt",
     },
-    secret: process.env.AUTH_SECRET,
 })

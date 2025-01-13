@@ -1,37 +1,29 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-// import { auth as authMiddleware } from '@/auth';
+import { NextResponse, NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  // Execute the imported auth middleware
-  // const authResponse = await authMiddleware({ req: request });
-  // if (authResponse) {
-  //   // If the auth middleware provides a response, return it
-  //   return authResponse;
-  // }
-
-  // Custom middleware logic
-  const token = await getToken({ req: request });
+  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
   const url = request.nextUrl;
 
-  if (token && (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up') ||
-    url.pathname.startsWith('/verify') || url.pathname.startsWith('/'))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // If the user is authenticated and tries to access public pages, redirect them to the dashboard
+  if (
+    token &&
+    (url.pathname === "/sign-in" ||
+      url.pathname === "/sign-up" ||
+      url.pathname.startsWith("/verify"))
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (!token && url.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+  // If the user is not authenticated and tries to access protected pages, redirect to sign-in
+  if (!token && url.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
-  // If no redirect is necessary, return `null`
-  return null;
+
+  // Allow the request to continue if no redirects are needed
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/sign-in',
-    '/sign-up',
-    '/dashboard/:path*',
-    '/verify/:path*',
-  ],
+  matcher: ["/", "/sign-in", "/sign-up", "/dashboard/:path*", "/verify/:path*"],
 };

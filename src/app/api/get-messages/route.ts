@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 export async function GET() {
     await dbConnect();
     const session = await auth();
+    // console.log("session", session);
     const user = session?.user;
     if (!session || !user) {
         return Response.json(
@@ -21,8 +22,8 @@ export async function GET() {
     const userId = new mongoose.Types.ObjectId(user._id);
     try {
 
-        const user = await UserModel.aggregate([
-            { $match: { id: userId } },
+        const msgs = await UserModel.aggregate([
+            { $match: { _id: userId } },
             { $unwind: "$messages" },
             { $sort: { "messages.createdAt": -1 } },
             {
@@ -32,20 +33,22 @@ export async function GET() {
                 }
             }
         ]);
-        if (!user || user.length === 0) {
+        if (!msgs || msgs.length === 0) {
+            console.log("no messages found");
             return Response.json(
                 {
-                    success: false,
-                    message: "User not found",
+                    success: true,
+                    message: "No messages found",
                 },
                 {
-                    status: 404,
+                    status: 200,
                 }
             );
         }
+        console.log("msgs", msgs[0].messages);
         return Response.json({
             success: true,
-            messages: user[0].messages,
+            messages: msgs[0].messages,
         }, {
             status: 200
         });
