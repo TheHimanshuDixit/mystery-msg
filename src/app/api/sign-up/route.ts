@@ -16,7 +16,7 @@ export async function POST(request: Request) {
             .findOne({ email });
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
         if (existingUserEmail) {
-            if(existingUserEmail.isVerified) {
+            if (existingUserEmail.isVerified) {
                 return Response.json({ success: false, message: "Email already exists" }, { status: 400 });
             }
             existingUserEmail.password = await bcrypt.hash(password, 10);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         }
         const emailResponse = await sendVerificationEmail(email, username, verifyCode);
 
-        if(!emailResponse.success) {
+        if (!emailResponse.success) {
             return Response.json({ success: false, message: "Failed to send verification email" }, { status: 500 });
         }
         return Response.json({ success: true, message: "User registered successfully. Please verify your email" }, { status: 201 });

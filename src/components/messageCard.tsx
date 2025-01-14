@@ -18,11 +18,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "./ui/button";
-import { X } from "lucide-react";
+
+import { X, Calendar, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { Message } from "@/model/User";
+import { motion } from "framer-motion";
 
 type MessageCardProps = {
   message: Message;
@@ -37,7 +38,7 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
       const response = await axios.delete(`/api/delete-message/${message._id}`);
       if (response.status === 200) {
         toast({
-          title: "Message deleted successfully",
+          title: "Message deleted",
           description: response.data.message,
         });
         onMessageDelete(message._id as string);
@@ -45,7 +46,7 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
     } catch (error) {
       console.error(error);
       toast({
-        title: "Error deleting message",
+        title: "Failed to delete message",
         description: "An error occurred while deleting the message",
         variant: "destructive",
       });
@@ -53,35 +54,50 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Card Title</CardTitle>
-        <AlertDialog>
-          <AlertDialogTrigger>
-            <Button variant="destructive">
-              <X className="w-5 h-5" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                account and remove your data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteConfirm}>
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <CardDescription>Card Description</CardDescription>
-      </CardHeader>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}>
+      <Card className="hover:shadow-lg transition-shadow duration-300 bg-gradient-to-r from-blue-50 via-white to-blue-50 rounded-lg border">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              <MessageCircle className="inline-block text-blue-500 mr-2" />
+              {message.content}
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              <Calendar className="inline-block text-blue-500 mr-2" />
+              {message.createdAt
+                ? new Date(message.createdAt).toDateString()
+                : ""}
+            </CardDescription>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger className="p-2 bg-red-500 hover:bg-red-600 rounded-full transition-colors duration-200">
+                <X className="w-5 h-5 text-white" />
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-lg font-bold">
+                  Are you absolutely sure?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-600">
+                  This action cannot be undone. This will permanently delete
+                  this message.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteConfirm}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardHeader>
+      </Card>
+    </motion.div>
   );
 };
 

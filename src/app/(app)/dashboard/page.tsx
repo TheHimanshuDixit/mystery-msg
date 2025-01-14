@@ -9,11 +9,11 @@ import { Message } from "@/model/User";
 import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Loader2, RefreshCcw } from "lucide-react";
-import { User } from "next-auth";
+import { Loader2, RefreshCcw, ClipboardCopy, Link2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
 
 const Page = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,17 +21,6 @@ const Page = () => {
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const handleDeleteMessage = async (messageId: string) => {
-    try {
-      setIsLoading(true);
-      // await deleteMessage(messageId);
-      setMessages((prev) => prev.filter((m) => m._id !== messageId));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const { data: session } = useSession();
 
   const form = useForm({
@@ -56,9 +45,7 @@ const Page = () => {
     } finally {
       setIsSwitchLoading(false);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setValue]);
+  }, [setValue, toast]);
 
   const fetchMessages = useCallback(
     async (refresh: boolean = false) => {
@@ -83,15 +70,14 @@ const Page = () => {
         setIsLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setMessages, setIsLoading]
+    [toast]
   );
 
   useEffect(() => {
     if (!session || !session.user) return;
     fetchMessages();
     fetchAcceptMessages();
-  }, [session, setValue, fetchAcceptMessages, fetchMessages]);
+  }, [session, fetchMessages, fetchAcceptMessages]);
 
   const handleAcceptMessages = async () => {
     setIsSwitchLoading(true);
@@ -115,16 +101,22 @@ const Page = () => {
       setIsSwitchLoading(false);
     }
   };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    setMessages((prev) => prev.filter((m) => m._id !== messageId));
+  };
+
   if (!session || !session.user)
     return (
       <div className="flex items-center justify-center h-screen">
-        {" "}
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
       </div>
     );
-  const { username } = session?.user as User;
+
+  const { username } = session?.user;
   const baseurl = `${window.location.protocol}//${window.location.host}`;
   const profileurl = `${baseurl}/u/${username}`;
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileurl);
     toast({
@@ -133,64 +125,94 @@ const Page = () => {
     });
   };
 
-  if (!session || !session.user) return <div>Please Login</div>;
-
   return (
-    <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded-lg shadow-lg max-w-6xl">
-      <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={profileurl}
-            disabled
-            className="input input-bordered w-full p-2 mr-2"
-          />
-          <Button onClick={copyToClipboard}>Copy</Button>
-        </div>
-      </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="container mx-auto p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg shadow-xl">
+      <h1 className="text-4xl font-extrabold text-indigo-800 text-center mb-8">
+        User Dashboard
+      </h1>
 
-      <div className="mb-4">
+      {/* Profile URL Section */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-md mb-6">
+        <Link2 className="w-6 h-6 text-indigo-500" />
+        <input
+          type="text"
+          value={profileurl}
+          disabled
+          className="flex-grow p-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-200 bg-indigo-50"
+        />
+        <Button onClick={copyToClipboard} variant="default">
+          <ClipboardCopy className="mr-2" />
+          Copy
+        </Button>
+      </motion.div>
+
+      {/* Accept Messages Section */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md mb-6">
         <Switch
           {...register("acceptMessages")}
           checked={acceptMessages}
           onCheckedChange={handleAcceptMessages}
           disabled={isSwitchLoading}
         />
-        <span className="ml-2">
-          Accept Messages: {acceptMessages ? "ON" : "OFF"}
+        <span className="text-gray-800">
+          Accept Messages: <strong>{acceptMessages ? "ON" : "OFF"}</strong>
         </span>
+      </motion.div>
+
+      <Separator className="my-6" />
+
+      {/* Refresh and Message Cards */}
+      <div className="flex justify-between items-center mb-4">
+        <Button
+          variant="outline"
+          onClick={() => fetchMessages(true)}
+          disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <RefreshCcw className="w-4 h-4" />
+          )}
+          <span className="ml-2">Refresh Messages</span>
+        </Button>
       </div>
-      <Separator />
-      <Button
-        className="mt-4"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          fetchMessages(true);
-        }}>
-        {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <RefreshCcw className="w-4 h-4" />
-        )}
-      </Button>
-      <div
-        className={`mt-4 grid grid-cols-1 md:${messages.length > 0 ? "grid-cols-2" : "grid-cols-1"} gap-6`}>
+
+      {/* Messages Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {messages.length > 0 ? (
           messages.map((message) => (
-            <MessageCard
+            <motion.div
               key={message._id as string}
-              message={message}
-              onMessageDelete={handleDeleteMessage}
-            />
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              <MessageCard
+                message={message}
+                onMessageDelete={handleDeleteMessage}
+              />
+            </motion.div>
           ))
         ) : (
-          <div className="text-center text-gray-500">No messages found</div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-gray-500 col-span-full">
+            No messages found
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

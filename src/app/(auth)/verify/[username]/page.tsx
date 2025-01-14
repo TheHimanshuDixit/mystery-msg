@@ -15,6 +15,8 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { ShieldCheck, Mail } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Page = () => {
   const router = useRouter();
@@ -46,34 +48,54 @@ const Page = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-4 space-y-4 bg-white rounded shadow-lg">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700">
+      <motion.div
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md p-6 space-y-6 bg-white rounded-lg shadow-xl">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Verifying Email
+          <ShieldCheck className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-800 lg:text-5xl mb-4">
+            Verify Your Email
           </h1>
+          <p className="text-gray-600">
+            Enter the code sent to your email to verify your account.
+          </p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Verification Code</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold flex items-center">
+                    <Mail className="mr-2 text-blue-500" /> Verification Code
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="code" {...field} />
+                    <Input
+                      placeholder="Enter your code"
+                      className="border-gray-300 focus:ring-2 focus:ring-blue-500"
+                      {...field}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
-            <Button className="" type="submit">
-              Sign Up
+            <Button
+              type="submit"
+              className="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none rounded-lg">
+              Verify
             </Button>
           </form>
         </Form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
