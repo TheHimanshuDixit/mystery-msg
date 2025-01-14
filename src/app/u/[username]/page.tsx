@@ -1,16 +1,19 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { messageSchema } from "@/schemas/messageSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Loader2, RefreshCcw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const Page = () => {
+  const router = useRouter();
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -74,9 +77,13 @@ const Page = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleGoToDashboard = () => {
+    router.replace("/dashboard"); // Redirect to dashboard
+  };
+
   return (
     <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen text-white">
-      <div className="bg-white text-gray-900 rounded-lg p-8 shadow-xl w-full max-w-lg">
+      <div className="bg-white text-gray-900 rounded-lg p-8 shadow-xl w-full max-w-4xl">
         <h1 className="text-3xl font-semibold text-center mb-4">
           Send a Message
         </h1>
@@ -103,6 +110,7 @@ const Page = () => {
             )}
           </Button>
         </form>
+        <Separator className="my-6" />
 
         {isLoading ? (
           <div className="flex justify-center mt-4">
@@ -117,7 +125,9 @@ const Page = () => {
                 <RefreshCcw className="w-4 h-4" />
                 Refresh Suggestions
               </Button>
-              <h2 className="text-md font-semibold mb-3">Click on any message below to select it.</h2>
+              <h2 className="text-md font-semibold mb-3">
+                Click on any message below to select it.
+              </h2>
               <div className="space-y-2">
                 {suggestMessage.split("||").map((message, index) => (
                   <div
@@ -131,6 +141,15 @@ const Page = () => {
             </div>
           )
         )}
+        <Separator className="my-6" />
+        <div>
+          <p className="text-center text-sm">Want to manage your messages? </p>
+          <Button
+            onClick={handleGoToDashboard} // Go to dashboard button
+            className="mt-6 w-full py-2 text-white rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200">
+            Create your account
+          </Button>
+        </div>
       </div>
     </div>
   );
