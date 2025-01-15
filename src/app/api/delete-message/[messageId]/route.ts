@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import UserModel from "@/model/User";
 import dbConnect from "@/lib/dbConnect";
 
-export async function DELETE( params: { messageId: string; } ) {
+export async function DELETE(req: Request, { params }: { params: { messageId: string } }) {
     const messageId = params.messageId;
     await dbConnect();
     const session = await auth();
