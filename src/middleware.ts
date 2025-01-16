@@ -6,6 +6,7 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
 
   // If the user is authenticated and tries to access public pages, redirect them to the dashboard
+  console.log(url.pathname, token);
   if (
     token &&
     (url.pathname === "/sign-in" ||

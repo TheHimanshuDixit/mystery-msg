@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         if (!emailResponse.success) {
             return Response.json({ success: false, message: "Failed to send verification email" }, { status: 500 });
         }
-        return Response.json({ success: true, message: "User registered successfully. Please verify your email" }, { status: 201 });
+        return Response.json({ success: true, message: "User registered successfully. Please verify your email" }, { status: 200 });
     }
     catch (error) {
         console.error("Error Registering User", error);
