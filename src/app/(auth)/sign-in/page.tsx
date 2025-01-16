@@ -39,6 +39,7 @@ const Page = () => {
       password: data.password,
       redirect: false,
     });
+    console.log(response);
     if (response?.error) {
       setIsSubmitting(false);
       toast({
