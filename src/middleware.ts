@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET, secureCookie: true });
   const url = request.nextUrl;
 
   // If the user is authenticated and tries to access public pages, redirect them to the dashboard
