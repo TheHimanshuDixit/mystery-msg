@@ -29,15 +29,11 @@ export async function sendVerificationEmail(
       subject: "Mystery Message Verifivation Code",
       html: emailHtml,
     };
-    transporter.sendMail(mailOption, function (error, info) {
-      if (error) {
-        console.log("Failed to send verification email", error);
-        return { success: false, message: "Failed to send verification email" };
-      } else {
-        console.log("Email sent: " + info.response);
-        return { success: true, message: "Verification email sent" };
-      }
-    });
+    const response = await transporter.sendMail(mailOption);
+    console.log("response", response);
+    if(response.rejected.length > 0){
+      return { success: true, message: "Verification email sent" };
+    } 
     // const em = await resend.emails.send({
     //   from: "onboarding@resend.dev",
     //   to: email,
